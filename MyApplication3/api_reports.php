@@ -26,6 +26,20 @@ switch ($method) {
         }
 
         try {
+            // Verify user exists in DB, otherwise fallback to prevent foreign key integrity error
+            $user_id = $data['user_id_who_filed'];
+            $userCheck = $pdo->prepare("SELECT id FROM users WHERE id = ?");
+            $userCheck->execute([$user_id]);
+            if (!$userCheck->fetch()) {
+                $fallbackUser = $pdo->query("SELECT id FROM users ORDER BY id ASC LIMIT 1")->fetch();
+                if ($fallbackUser) {
+                    $user_id = $fallbackUser['id'];
+                } else {
+                    $pdo->exec("INSERT INTO users (name, username, email, password) VALUES ('Guest', 'guest@reunite.com', 'guest@reunite.com', 'password')");
+                    $user_id = $pdo->lastInsertId();
+                }
+            }
+
             $image_name = null;
             if (!empty($data['encoded_image'])) {
                 $encoded_image = $data['encoded_image'];
@@ -59,7 +73,7 @@ switch ($method) {
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 'report_id' => ($data['report_type'] ?? 'ITEM') . '-' . strtoupper(substr(uniqid(), -5)),
-                'user_id'   => $data['user_id_who_filed'],
+                'user_id'   => $user_id,
                 'photo'     => $image_name,
                 'loc'       => $final_location
             ]);

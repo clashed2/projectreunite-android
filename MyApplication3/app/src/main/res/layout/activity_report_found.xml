@@ -12,14 +12,17 @@
             android:id="@+id/topBar"
             android:layout_width="match_parent"
             android:layout_height="64dp"
-            android:paddingHorizontal="16dp">
+            android:paddingHorizontal="20dp">
 
             <TextView
                 android:id="@+id/btnBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="＜"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="12dp"
+                android:text="←"
                 android:textColor="@color/primary_green"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -29,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="Report Found Item"
-                android:textColor="@color/status_found"
+                android:textColor="@color/primary_green"
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </RelativeLayout>
@@ -49,7 +52,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Item Information"
-                    android:textColor="@color/black"
+                    android:textColor="@color/primary_green"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <EditText
@@ -61,7 +65,6 @@
                     android:hint="Item Name"
                     android:paddingHorizontal="16dp" />
 
-                <!-- Replaced EditText with Spinner for Dropdown -->
                 <Spinner
                     android:id="@+id/spinnerCategory"
                     android:layout_width="match_parent"
@@ -77,7 +80,7 @@
                     android:layout_marginTop="12dp"
                     android:background="@drawable/bg_search_bar"
                     android:gravity="top"
-                    android:hint="Description"
+                    android:hint="Description (e.g. brand, color)"
                     android:lines="3"
                     android:padding="16dp" />
 
@@ -86,7 +89,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="Found Location"
-                    android:textColor="@color/black"
+                    android:textColor="@color/primary_green"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <EditText
@@ -103,17 +107,19 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="Upload Photos"
-                    android:textColor="@color/black"
+                    android:textColor="@color/primary_green"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
                     android:id="@+id/btnUploadPhoto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="100dp"
                     android:layout_marginTop="12dp"
                     android:background="@drawable/bg_rounded_white"
+                    android:elevation="2dp"
                     android:gravity="center"
+                    android:minHeight="120dp"
                     android:orientation="vertical"
                     android:padding="8dp">
 
@@ -129,7 +135,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="+ Add Photos"
-                        android:textColor="@color/status_found"
+                        android:textColor="@color/primary_green"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -137,9 +143,8 @@
                     android:id="@+id/btnSubmitFound"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:layout_marginTop="32dp"
-                    android:background="@drawable/bg_rounded_primary"
-                    android:backgroundTint="@color/status_found"
+                    android:layout_marginTop="36dp"
+                    android:backgroundTint="@color/primary_green"
                     android:text="Submit Report"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
