@@ -1,92 +1,117 @@
 <?php
-ob_start();
-require_once 'db.php';
+require 'db.php';
+header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PATCH, DELETE");
 
 $method = $_SERVER['REQUEST_METHOD'];
+$input = json_decode(file_get_contents('php://input'), true);
+if (is_null($input)) { $input = $_POST; }
 
-switch ($method) {
-    case 'GET':
-        // Fetch all reports and include the filer's name
-        $query = "SELECT r.*, u.name as filed_by_user FROM reports r LEFT JOIN users u ON r.user_id_who_filed = u.id ORDER BY r.id DESC";
-        $stmt = $pdo->query($query);
-        $reports = $stmt->fetchAll();
-        ob_clean();
-        echo json_encode(["status" => "success", "data" => $reports]);
-        break;
+try {
+    if ($method === 'GET') {
+        $sql = "SELECT r.*, i.details_description, i.picture_image,
+                       GROUP_CONCAT(c.name SEPARATOR ', ') AS category_names
+                FROM reports r
+                LEFT JOIN items i ON r.id = i.report_id
+                LEFT JOIN category_report cr ON r.id = cr.report_id
+                LEFT JOIN categories c ON cr.category_id = c.id";
 
-    case 'POST':
-        $content = file_get_contents("php://input");
-        $data = json_decode($content, true);
-        if (is_null($data)) { $data = $_POST; }
+        if (isset($_GET['id'])) {
+            // Added i.details_description and i.picture_image to GROUP BY
+            $stmt = $pdo->prepare($sql . " WHERE r.id = ? GROUP BY r.id, i.details_description, i.picture_image");
+            $stmt->execute([$_GET['id']]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        } else {
+            // Added i.details_description and i.picture_image to GROUP BY
+            $stmt = $pdo->prepare($sql . " GROUP BY r.id, i.details_description, i.picture_image ORDER BY r.created_at DESC");
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        echo json_encode(["status" => "success", "data" => $data]);
+    }
+    elseif ($method === 'POST') {
+        $pdo->beginTransaction();
 
-        if (empty($data['user_id_who_filed']) || empty($data['location'])) {
-            http_response_code(400);
-            echo json_encode(["status" => "error", "message" => "Missing required fields"]);
-            exit();
+        $user_id_input = isset($input['user_id_who_filed']) ? $input['user_id_who_filed'] : 1;
+
+        // Fix integrity error: Verify user exists in DB, otherwise fallback to first user or create guest
+        $userCheck = $pdo->prepare("SELECT id FROM users WHERE id = ?");
+        $userCheck->execute([$user_id_input]);
+        if (!$userCheck->fetch()) {
+            $fallbackUser = $pdo->query("SELECT id FROM users ORDER BY id ASC LIMIT 1")->fetch();
+            if ($fallbackUser) {
+                $user_id = $fallbackUser['id'];
+            } else {
+                $pdo->exec("INSERT INTO users (name, username, email, password) VALUES ('Guest', 'guest@reunite.com', 'guest@reunite.com', 'password')");
+                $user_id = $pdo->lastInsertId();
+            }
+        } else {
+            $user_id = $user_id_input;
         }
 
-        try {
-            // Verify user exists in DB, otherwise fallback to prevent foreign key integrity error
-            $user_id = $data['user_id_who_filed'];
-            $userCheck = $pdo->prepare("SELECT id FROM users WHERE id = ?");
-            $userCheck->execute([$user_id]);
-            if (!$userCheck->fetch()) {
-                $fallbackUser = $pdo->query("SELECT id FROM users ORDER BY id ASC LIMIT 1")->fetch();
-                if ($fallbackUser) {
-                    $user_id = $fallbackUser['id'];
-                } else {
-                    $pdo->exec("INSERT INTO users (name, username, email, password) VALUES ('Guest', 'guest@reunite.com', 'guest@reunite.com', 'password')");
-                    $user_id = $pdo->lastInsertId();
+        $custom_report_id = 'REP-' . strtoupper(substr(md5(uniqid()), 0, 5));
+
+        $stmt = $pdo->prepare("INSERT INTO reports (report_id, user_id_who_filed, location, date_filed) VALUES (?, ?, ?, NOW())");
+        $stmt->execute([
+            $custom_report_id,
+            $user_id,
+            isset($input['location']) ? $input['location'] : 'Unknown Location'
+        ]);
+        $primary_db_id = $pdo->lastInsertId();
+
+        if (!empty($input['category_ids']) && is_array($input['category_ids'])) {
+            $stmtCat = $pdo->prepare("INSERT INTO category_report (category_id, report_id) VALUES (?, ?)");
+            foreach ($input['category_ids'] as $cat_id) {
+                // Verify category exists before inserting to prevent category foreign key integrity errors
+                $catCheck = $pdo->prepare("SELECT id FROM categories WHERE id = ?");
+                $catCheck->execute([$cat_id]);
+                if ($catCheck->fetch()) {
+                    $stmtCat->execute([$cat_id, $primary_db_id]);
                 }
             }
-
-            $image_name = null;
-            if (!empty($data['encoded_image'])) {
-                $encoded_image = $data['encoded_image'];
-
-                // Remove potential Base64 metadata prefix if present
-                if (preg_match('/^data:image\/(\w+);base64,/', $encoded_image, $type)) {
-                    $encoded_image = substr($encoded_image, strpos($encoded_image, ',') + 1);
-                }
-
-                $image_data = base64_decode($encoded_image);
-                // Use uniqid to prevent overwriting files if uploaded at the same time
-                $image_name = 'img_' . time() . '_' . uniqid() . '.jpg';
-
-                if (!file_exists('uploads')) {
-                    mkdir('uploads', 0777, true);
-                }
-
-                file_put_contents('uploads/' . $image_name, $image_data);
-            }
-
-            // Combine Description and Location so all information is saved in the DB
-            $final_location = $data['location'];
-            if (!empty($data['description'])) {
-                $final_location = "[" . $data['description'] . "] " . $final_location;
-            }
-
-            $sql = "INSERT INTO reports
-                    (report_id, user_id_who_filed, date_filed, photo_image, location)
-                    VALUES (:report_id, :user_id, NOW(), :photo, :loc)";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                'report_id' => ($data['report_type'] ?? 'ITEM') . '-' . strtoupper(substr(uniqid(), -5)),
-                'user_id'   => $user_id,
-                'photo'     => $image_name,
-                'loc'       => $final_location
-            ]);
-
-            ob_clean();
-            echo json_encode(["status" => "success", "message" => "Report filed successfully"]);
-            exit();
-        } catch (PDOException $e) {
-            ob_clean();
-            http_response_code(500);
-            echo json_encode(["status" => "error", "message" => "Database Error: " . $e->getMessage()]);
-            exit();
         }
-        break;
+
+        $item_name = isset($input['item_name']) ? $input['item_name'] : 'Unknown Item';
+        $description = isset($input['description']) ? $input['description'] : 'No description';
+        $full_details = $item_name . " - " . $description;
+
+        $stmtItem = $pdo->prepare("INSERT INTO items (report_id, details_description) VALUES (?, ?)");
+        $stmtItem->execute([
+            $primary_db_id,
+            $full_details
+        ]);
+
+        $pdo->commit();
+        echo json_encode([
+            "status" => "success",
+            "message" => "Report created",
+            "internal_id" => $primary_db_id,
+            "report_code" => $custom_report_id
+        ]);
+    }
+    elseif ($method === 'PATCH') {
+        if (isset($_GET['id']) && isset($input['location'])) {
+            $stmt = $pdo->prepare("UPDATE reports SET location = ? WHERE id = ?");
+            $stmt->execute([$input['location'], $_GET['id']]);
+            echo json_encode(["status" => "success", "message" => "Report location updated"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Missing ID or location data"]);
+        }
+    }
+    elseif ($method === 'DELETE') {
+        if (isset($_GET['id'])) {
+            $stmt = $pdo->prepare("DELETE FROM reports WHERE id = ?");
+            $stmt->execute([$_GET['id']]);
+            echo json_encode(["status" => "success", "message" => "Report deleted"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Missing report ID for deletion"]);
+        }
+    }
+} catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    echo json_encode(["status" => "error", "message" => "System Error: " . $e->getMessage()]);
 }
 ?>
