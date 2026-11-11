@@ -1,0 +1,8 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.MyApplication" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary_green</item>
+        <item name="colorAccent">@color/primary_green</item>
+        <item name="android:colorPrimary">@color/primary_green</item>
+    </style>
+</resources>
