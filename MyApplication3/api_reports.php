@@ -76,10 +76,22 @@ try {
         $description = isset($input['description']) ? $input['description'] : 'No description';
         $full_details = $item_name . " - " . $description;
 
-        $stmtItem = $pdo->prepare("INSERT INTO items (report_id, details_description) VALUES (?, ?)");
+        $picture_image = null;
+        if (!empty($input['encoded_image'])) {
+            $picture_image = $input['encoded_image'];
+        } elseif (!empty($input['picture_image'])) {
+            $picture_image = $input['picture_image'];
+        } elseif (!empty($input['photo_image'])) {
+            $picture_image = $input['photo_image'];
+        } elseif (!empty($input['image_url'])) {
+            $picture_image = $input['image_url'];
+        }
+
+        $stmtItem = $pdo->prepare("INSERT INTO items (report_id, details_description, picture_image) VALUES (?, ?, ?)");
         $stmtItem->execute([
             $primary_db_id,
-            $full_details
+            $full_details,
+            $picture_image
         ]);
 
         $pdo->commit();

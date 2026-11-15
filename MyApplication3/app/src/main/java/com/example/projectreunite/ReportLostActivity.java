@@ -22,8 +22,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,7 +34,7 @@ public class ReportLostActivity extends AppCompatActivity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private String encodedImage = null;
     private ImageView ivPhotoPreview;
-    private Spinner spinnerCategory;
+    private Spinner spinnerCategory, spinnerTime;
 
     // Maps category names to their true database primary IDs
     private final ArrayList<String> categoryNames = new ArrayList<>();
@@ -63,6 +66,7 @@ public class ReportLostActivity extends AppCompatActivity {
 
         ivPhotoPreview = findViewById(R.id.ivPhotoPreview);
         spinnerCategory = findViewById(R.id.spinnerCategory);
+        spinnerTime = findViewById(R.id.spinnerTime);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
@@ -73,7 +77,7 @@ public class ReportLostActivity extends AppCompatActivity {
 
         findViewById(R.id.btnSubmitLost).setOnClickListener(v -> submitReport());
 
-        // Populate default static categories immediately so they show up instantly
+        // Populate default static categories
         categoryNames.add("Select Category");
         categoryNames.add("Bag");
         categoryNames.add("Clothing");
@@ -92,6 +96,45 @@ public class ReportLostActivity extends AppCompatActivity {
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categoryNames);
         spinnerCategory.setAdapter(adapter);
+
+        setupTimeDropdown(spinnerTime);
+    }
+
+    private void setupTimeDropdown(Spinner spinnerTime) {
+        if (spinnerTime == null) return;
+
+        ArrayList<String> timeChoices = new ArrayList<>();
+
+        Calendar now = Calendar.getInstance();
+        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.US);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.US);
+
+        String currentTimeStr = timeFormat.format(now.getTime());
+        String currentDateStr = dateFormat.format(now.getTime());
+
+        // Default choice: Current Time (Selected & Active)
+        timeChoices.add("Current Time (" + currentTimeStr + " - " + currentDateStr + ")");
+
+        // Generate choices for upcoming 30-minute intervals for today starting AFTER current time
+        Calendar iter = (Calendar) now.clone();
+        int minutes = iter.get(Calendar.MINUTE);
+        if (minutes < 30) {
+            iter.set(Calendar.MINUTE, 30);
+            iter.set(Calendar.SECOND, 0);
+        } else {
+            iter.add(Calendar.HOUR_OF_DAY, 1);
+            iter.set(Calendar.MINUTE, 0);
+            iter.set(Calendar.SECOND, 0);
+        }
+
+        int currentDay = now.get(Calendar.DAY_OF_YEAR);
+        while (iter.get(Calendar.DAY_OF_YEAR) == currentDay) {
+            timeChoices.add(timeFormat.format(iter.getTime()) + " (" + currentDateStr + ")");
+            iter.add(Calendar.MINUTE, 30);
+        }
+
+        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, timeChoices);
+        spinnerTime.setAdapter(timeAdapter);
     }
 
     private String encodeImage(Bitmap bitmap) {
@@ -112,13 +155,14 @@ public class ReportLostActivity extends AppCompatActivity {
         EditText item = findViewById(R.id.etItemName);
         EditText description = findViewById(R.id.etDescription);
         EditText location = findViewById(R.id.etLocation);
-        EditText dateTime = findViewById(R.id.etDateTime);
         Button btnSubmit = findViewById(R.id.btnSubmitLost);
 
         String itemName = item.getText().toString().trim();
         String desc = description.getText().toString().trim();
         String loc = location.getText().toString().trim();
-        String date = dateTime != null ? dateTime.getText().toString().trim() : "";
+
+        String selectedTime = spinnerTime != null && spinnerTime.getSelectedItem() != null ? spinnerTime.getSelectedItem().toString() : "";
+
         int rawUserId = getSharedPreferences("reunite", MODE_PRIVATE).getInt("user_id", 0);
         final int userId = rawUserId <= 0 ? 1 : rawUserId;
 
@@ -138,12 +182,11 @@ public class ReportLostActivity extends AppCompatActivity {
                 body.put("item_name", itemName);
                 body.put("description", desc);
                 body.put("details_description", itemName + " - " + desc);
-                body.put("location", loc + (date.isEmpty() ? "" : " [" + date + "]"));
-                body.put("date_filed", date);
+                body.put("location", loc);
+                body.put("date_filed", selectedTime);
                 body.put("status", "active");
                 body.put("report_type", "LOST");
 
-                // Sends the TRUE database ID instead of the UI index
                 JSONArray categoryArray = new JSONArray();
                 categoryArray.put(realCategoryId);
                 body.put("category_ids", categoryArray);

@@ -1,43 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_green_bg">
 
+    <!-- Top Bar -->
     <RelativeLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="64dp"
+        android:background="@color/white"
+        android:elevation="4dp"
         android:paddingHorizontal="16dp">
 
-        <TextView
+        <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_centerVertical="true"
             android:clickable="true"
             android:focusable="true"
-            android:padding="12dp"
-            android:text="←"
-            android:textColor="@color/primary_green"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/primary_green"
+            android:contentDescription="Back" />
 
         <TextView
+            android:id="@+id/tvSearchTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="Search"
-            android:textColor="@color/primary_green"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.01" />
     </RelativeLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/topBar"
-        android:layout_above="@+id/bottomNav">
+        android:layout_above="@+id/bottomNav"
+        android:clipToPadding="false"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -48,12 +56,15 @@
             <EditText
                 android:id="@+id/etSearchBox"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="50dp"
                 android:background="@drawable/bg_search_bar"
-                android:hint="Search items..."
-                android:drawableStart="@android:drawable/ic_menu_search"
-                android:drawablePadding="8dp"
-                android:paddingHorizontal="16dp" />
+                android:hint="Search items, locations, or reports..."
+                android:drawableStart="@drawable/ic_search"
+                android:drawablePadding="12dp"
+                android:paddingHorizontal="16dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/gray_light"
+                android:textSize="14sp" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -71,10 +82,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_rounded_primary"
-                        android:paddingHorizontal="20dp"
-                        android:paddingVertical="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingHorizontal="22dp"
+                        android:paddingVertical="10dp"
                         android:text="All"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/filterLost"
@@ -82,10 +97,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/bg_rounded_white"
-                        android:paddingHorizontal="20dp"
-                        android:paddingVertical="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingHorizontal="22dp"
+                        android:paddingVertical="10dp"
                         android:text="Lost"
-                        android:textColor="@color/gray" />
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/filterFound"
@@ -93,10 +112,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/bg_rounded_white"
-                        android:paddingHorizontal="20dp"
-                        android:paddingVertical="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingHorizontal="22dp"
+                        android:paddingVertical="10dp"
                         android:text="Found"
-                        android:textColor="@color/gray" />
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </HorizontalScrollView>
 
@@ -107,7 +130,19 @@
                 android:text="Results"
                 android:textColor="@color/black"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:letterSpacing="-0.01" />
+
+            <TextView
+                android:id="@+id/tvEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:gravity="center"
+                android:text="No items found."
+                android:textColor="@color/gray"
+                android:textSize="15sp"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvSearchResults"
@@ -118,16 +153,17 @@
         </LinearLayout>
     </ScrollView>
 
+    <!-- Bottom Navigation Bar -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_alignParentBottom="true"
-        android:background="@color/white"
-        android:elevation="10dp"
+        android:background="@drawable/bg_bottom_nav"
+        android:elevation="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:translationZ="10dp">
+        android:translationZ="12dp">
 
         <TextView
             android:id="@+id/navHome"
@@ -137,7 +173,9 @@
             android:gravity="center"
             android:text="Home"
             android:textColor="@color/gray"
-            android:drawableTop="@android:drawable/ic_menu_view"
+            android:textSize="11sp"
+            android:drawableTop="@drawable/ic_home"
+            app:drawableTint="@color/gray"
             android:background="?attr/selectableItemBackground" />
 
         <TextView
@@ -148,18 +186,23 @@
             android:gravity="center"
             android:text="Search"
             android:textColor="@color/primary_green"
+            android:textSize="11sp"
             android:textStyle="bold"
-            android:drawableTop="@android:drawable/ic_menu_search"
+            android:drawableTop="@drawable/ic_search"
+            app:drawableTint="@color/primary_green"
             android:background="?attr/selectableItemBackground" />
 
         <ImageView
             android:id="@+id/navAdd"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:src="@android:drawable/ic_input_add"
-            android:backgroundTint="@color/primary_green"
-            android:background="?attr/selectableItemBackground" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="4dp"
+            android:src="@drawable/ic_plus"
+            app:tint="@color/white"
+            android:background="@drawable/bg_circle_primary"
+            android:elevation="6dp"
+            android:padding="12dp"
+            android:contentDescription="Add Report" />
 
         <TextView
             android:id="@+id/navMessages"
@@ -169,7 +212,9 @@
             android:gravity="center"
             android:text="Chat"
             android:textColor="@color/gray"
-            android:drawableTop="@android:drawable/sym_action_chat"
+            android:textSize="11sp"
+            android:drawableTop="@drawable/ic_chat"
+            app:drawableTint="@color/gray"
             android:background="?attr/selectableItemBackground" />
 
         <TextView
@@ -180,7 +225,9 @@
             android:gravity="center"
             android:text="Profile"
             android:textColor="@color/gray"
-            android:drawableTop="@android:drawable/ic_menu_myplaces"
+            android:textSize="11sp"
+            android:drawableTop="@drawable/ic_profile"
+            app:drawableTint="@color/gray"
             android:background="?attr/selectableItemBackground" />
     </LinearLayout>
 

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_green_bg">
 
+    <!-- Top Bar -->
     <RelativeLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="64dp"
+        android:background="@color/white"
+        android:elevation="4dp"
         android:paddingHorizontal="16dp">
 
         <TextView
@@ -15,68 +19,142 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="Profile"
-            android:textColor="@color/primary_green"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@android:drawable/ic_menu_preferences"
-            android:tint="@color/primary_green" />
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.01" />
     </RelativeLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/topBar"
-        android:layout_above="@+id/bottomNav">
+        android:layout_above="@+id/bottomNav"
+        android:clipToPadding="false"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="16dp">
 
+            <!-- Profile Info Header Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_rounded_white"
+                android:elevation="4dp"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:padding="20dp">
 
-                <View
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                <LinearLayout
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
                     android:background="@drawable/bg_circle_primary"
-                    android:backgroundTint="@color/gray" />
+                    android:elevation="4dp"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_user"
+                        app:tint="@color/white"
+                        android:contentDescription="Profile Picture" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvProfileName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:text="Loading..."
                     android:textColor="@color/black"
                     android:textSize="22sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:letterSpacing="-0.01" />
 
                 <TextView
                     android:id="@+id/tvProfileEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:text="Loading..."
-                    android:textColor="@color/gray" />
+                    android:textColor="@color/gray"
+                    android:textSize="14sp" />
+
+                <!-- Summary Stats Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_tab_container"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:id="@+id/tvMyReportsCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="@color/primary_green"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="My Reports"
+                            android:textColor="@color/gray"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_tab_container"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:id="@+id/tvSavedCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="@color/primary_green"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Saved Items"
+                            android:textColor="@color/gray"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
+            <!-- Quick Action Tabs -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/bg_rounded_white"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_tab_container"
                 android:orientation="horizontal"
                 android:padding="4dp">
 
@@ -86,10 +164,13 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/bg_rounded_primary"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
-                    android:paddingVertical="12dp"
+                    android:paddingVertical="10dp"
                     android:text="My Items"
                     android:textColor="@color/white"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -97,19 +178,58 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
-                    android:paddingVertical="12dp"
+                    android:paddingVertical="10dp"
                     android:text="Saved Items"
-                    android:textColor="@color/gray" />
+                    android:textColor="@color/gray"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="My Reported Items"
+                android:textColor="@color/black"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:letterSpacing="-0.01" />
+
+            <TextView
+                android:id="@+id/tvProfileEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:text="No items to show."
+                android:textColor="@color/gray"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvProfileReports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:nestedScrollingEnabled="false" />
 
             <Button
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="28dp"
                 android:layout_marginBottom="16dp"
-                android:backgroundTint="#D32F2F"
+                android:background="@drawable/bg_rounded_primary"
+                android:backgroundTint="#EF4444"
+                android:drawableStart="@drawable/ic_logout"
+                android:drawablePadding="10dp"
+                app:drawableTint="@color/white"
+                android:elevation="4dp"
+                android:paddingHorizontal="24dp"
                 android:text="Log Out"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
@@ -119,16 +239,17 @@
         </LinearLayout>
     </ScrollView>
 
+    <!-- Bottom Navigation Bar -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_alignParentBottom="true"
-        android:background="@color/white"
-        android:elevation="10dp"
+        android:background="@drawable/bg_bottom_nav"
+        android:elevation="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:translationZ="10dp">
+        android:translationZ="12dp">
 
         <TextView
             android:id="@+id/navHome"
@@ -138,7 +259,9 @@
             android:gravity="center"
             android:text="Home"
             android:textColor="@color/gray"
-            android:drawableTop="@android:drawable/ic_menu_view"
+            android:textSize="11sp"
+            android:drawableTop="@drawable/ic_home"
+            app:drawableTint="@color/gray"
             android:background="?attr/selectableItemBackground" />
 
         <TextView
@@ -149,17 +272,22 @@
             android:gravity="center"
             android:text="Search"
             android:textColor="@color/gray"
-            android:drawableTop="@android:drawable/ic_menu_search"
+            android:textSize="11sp"
+            android:drawableTop="@drawable/ic_search"
+            app:drawableTint="@color/gray"
             android:background="?attr/selectableItemBackground" />
 
         <ImageView
             android:id="@+id/navAdd"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:src="@android:drawable/ic_input_add"
-            android:backgroundTint="@color/primary_green"
-            android:background="?attr/selectableItemBackground" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="4dp"
+            android:src="@drawable/ic_plus"
+            app:tint="@color/white"
+            android:background="@drawable/bg_circle_primary"
+            android:elevation="6dp"
+            android:padding="12dp"
+            android:contentDescription="Add Report" />
 
         <TextView
             android:id="@+id/navMessages"
@@ -169,7 +297,9 @@
             android:gravity="center"
             android:text="Chat"
             android:textColor="@color/gray"
-            android:drawableTop="@android:drawable/sym_action_chat"
+            android:textSize="11sp"
+            android:drawableTop="@drawable/ic_chat"
+            app:drawableTint="@color/gray"
             android:background="?attr/selectableItemBackground" />
 
         <TextView
@@ -180,8 +310,10 @@
             android:gravity="center"
             android:text="Profile"
             android:textColor="@color/primary_green"
+            android:textSize="11sp"
             android:textStyle="bold"
-            android:drawableTop="@android:drawable/ic_menu_myplaces"
+            android:drawableTop="@drawable/ic_profile"
+            app:drawableTint="@color/primary_green"
             android:background="?attr/selectableItemBackground" />
     </LinearLayout>
 </RelativeLayout>

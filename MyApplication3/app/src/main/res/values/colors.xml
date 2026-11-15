@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <color name="black">#0F172A</color>
     <color name="white">#FFFFFF</color>
-    <color name="primary_green">#16864B</color>
-    <color name="light_green_bg">#E2EFE7</color>
-    <color name="gray">#777777</color>
-    <color name="status_lost">#EB5757</color>
-    <color name="status_found">#27AE60</color>
-    <color name="divider">#EEEEEE</color>
+    <color name="primary_green">#0D9488</color>
+    <color name="primary_green_dark">#0F766E</color>
+    <color name="primary_green_light">#CCFBF1</color>
+    <color name="light_green_bg">#F8FAFC</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="gray">#64748B</color>
+    <color name="gray_light">#94A3B8</color>
+    <color name="border_color">#E2E8F0</color>
+    <color name="status_lost">#EF4444</color>
+    <color name="status_lost_bg">#FEE2E2</color>
+    <color name="status_found">#10B981</color>
+    <color name="status_found_bg">#D1FAE5</color>
+    <color name="divider">#F1F5F9</color>
 </resources>

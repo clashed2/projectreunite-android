@@ -70,11 +70,16 @@ public class HomeActivity extends AppCompatActivity {
                                 String name = rawDetails.contains(" - ") ? rawDetails.split(" - ")[0] : rawDetails;
                                 String desc = rawDetails.contains(" - ") ? rawDetails.substring(rawDetails.indexOf(" - ") + 3) : "";
 
-                                // Safely grab the image string regardless of what key your PHP uses
                                 String photo = obj.optString("photo_image", "");
-                                if (photo.isEmpty() || photo.equals("null")) {
-                                    photo = obj.optString("image_url", "");
-                                }
+                                if (photo.isEmpty() || photo.equalsIgnoreCase("null")) photo = obj.optString("image_url", "");
+                                if (photo.isEmpty() || photo.equalsIgnoreCase("null")) photo = obj.optString("photo", "");
+                                if (photo.isEmpty() || photo.equalsIgnoreCase("null")) photo = obj.optString("image", "");
+                                if (photo.isEmpty() || photo.equalsIgnoreCase("null")) photo = obj.optString("file_name", "");
+                                if (photo.isEmpty() || photo.equalsIgnoreCase("null")) photo = obj.optString("picture", "");
+
+                                int userIdWhoFiled = obj.optInt("user_id_who_filed", obj.optInt("user_id", 0));
+                                String filedBy = obj.optString("filed_by_user", obj.optString("username", "Unknown"));
+                                String category = obj.optString("category_name", obj.optString("category", "General"));
 
                                 reportList.add(new Report(
                                         obj.optInt("id"),
@@ -84,7 +89,9 @@ public class HomeActivity extends AppCompatActivity {
                                         obj.optString("location", "Unknown"),
                                         obj.optString("date_filed"),
                                         photo,
-                                        obj.optString("filed_by_user", "Unknown")
+                                        filedBy,
+                                        userIdWhoFiled,
+                                        category
                                 ));
                             }
                         }
